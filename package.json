@@ -1,0 +1,25 @@
+{
+  "name": "syslog-nd",
+  "version": "0.0.1",
+  "description": "node based syslog daemon",
+  "main": "syslog-nd.js",
+  "dependencies": {
+    "unix-dgram": "^0.2.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/jamonation/syslog-nd.git"
+  },
+  "keywords": [
+    "syslog",
+    "syslogd",
+    "logging",
+    "rfc3164"
+  ],
+  "author": "Jamon Camisso",
+  "license": "WTFPL"
+}
