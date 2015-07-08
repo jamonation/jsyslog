@@ -1,0 +1,39 @@
+{
+
+    "facilities": {
+	"0": {"name": "kern", "description": "kernel"},
+	"1": {"name": "user", "description": "user-level messages"},
+	"2": {"name": "mail", "description": "mail system"},
+	"3": {"name": "daemon", "description": "system daemons"},
+	"4": {"name": "auth", "description": "security/authorization messages"},
+	"5": {"name": "syslog", "description": "messages generated internally by syslogd"},
+	"6": {"name": "lpr", "description": "line printer subsystem"},
+	"7": {"name": "news", "description": "network news subsystem"},
+	"8": {"name": "uucp", "description": "UUCP subsystem"},
+	"9": {"name": "cron", "description": "clock daemon"},
+	"10": {"name": "security", "description": "security/authorization messages"},
+	"11": {"name": "ftp", "description": "FTP daemon"},
+	"12": {"name": "ntp", "description": "NTP subsystem"},
+	"13": {"name": "logaudit", "description": "log audit"},
+	"14": {"name": "logalert", "description": "log alert"},
+	"15": {"name": "clock", "description": "clock daemon"},
+	"16": {"name": "local0", "description": "local use 0 (local0)"},
+	"17": {"name": "local1", "description": "local use 1 (local1)"},
+	"18": {"name": "local2", "description": "local use 2 (local2)"},
+	"19": {"name": "local3", "description": "local use 3 (local3)"},
+	"20": {"name": "local4", "description": "local use 4 (local4)"},
+	"21": {"name": "local5", "description": "local use 5 (local5)"},
+	"22": {"name": "local6", "description": "local use 6 (local6)"},
+	"23": {"name": "local7", "description": "local use 7 (local7)"}
+    },
+    "levels": {
+	"0": {"name": "emerg", "description": "system is unusable"},
+	"1": {"name": "alert", "description": "action must be taken immediately"},
+	"2": {"name": "critical", "description": "critical conditions"},
+	"3": {"name": "err", "description": "error conditions"},
+	"4": {"name": "warning", "description": "warning conditions"},
+	"5": {"name": "notice", "description": "normal but significant condition"},
+	"6": {"name": "info", "description": "informational messages"},
+	"7": {"name": "debug", "description": "debug-level messages"}
+    }
+}
