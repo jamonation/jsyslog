@@ -46,14 +46,13 @@ function parse_data(data) {
     facility = priority >> 3, //bit shift instead of divide
     level = priority & 0x07 // and mask of 8 instead of % mod
 
-   console.log('priority:', priority, '\t',
+  console.log('priority:', priority, '\t',
     'facility:', facility, '\t',
     'level:',  level)
   var message = (priorities.facilities[facility].name, priorities.levels[level].name,  data.slice(offset).toString())
 
   queue.items.push(message)
 }
-
 
 var logFile = fs.createWriteStream(config.syslogFile, {flags: 'r+', encoding: 'utf8', mode: 0640})
 
