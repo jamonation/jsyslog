@@ -1,10 +1,16 @@
 var dgram = require('dgram'),
   events = require('events'),
-  fs = require('fs'),    
-  net = require('net')
+  fs = require('fs'),
+  net = require('net'),
+  os = require('os'),
+  strftime = require('strftime')
 
 const config = require('./config.js'),
   priorities = require('./levels.json')
+
+
+var logger = require('./logger')(config)
+
 
 var queue = new events.EventEmitter()
 queue.offset = 0
@@ -14,6 +20,7 @@ queue.items.push = function() {
   queue.emit('message') // emit a message event *after* push has been applied to queue.items array
   return this.length
 }
+
 
 function find_priority(buf) {
   var priority = 0,
@@ -32,7 +39,7 @@ function find_priority(buf) {
     offset = 5;
   } else {
     priority = 0;
-    console.log('unknown priority')
+    logger.warn('unknown priority')
   }
 
   return [priority, offset]
@@ -46,15 +53,34 @@ function parse_data(data) {
     facility = priority >> 3, //bit shift instead of divide
     level = priority & 0x07 // and mask of 8 instead of % mod
 
-  console.log('priority:', priority, '\t',
-    'facility:', facility, '\t',
-    'level:',  level)
-  var message = (priorities.facilities[facility].name, priorities.levels[level].name,  data.slice(offset).toString())
+  logger.debug(message + ' #{DEBUG: {priority:' + priority + ', facility:' + facility + ', level:' +  level + '}}#')
 
+  var message = (priorities.facilities[facility].name, priorities.levels[level].name,  data.slice(offset).toString())
   queue.items.push(message)
 }
 
-var logFile = fs.createWriteStream(config.syslogFile, {flags: 'r+', encoding: 'utf8', mode: 0640})
+var logFile = fs.createWriteStream(config.syslogFile, {flags: 'a', mode: '0640', encoding: 'utf8'})
+
+
+var nowDate = function() {
+  return strftime(config.dateFormat)
+}
+
+function create_message(message_raw) {
+    var message = [nowDate(), os.hostname(), 'jsyslog[' + process.pid.toString() + ']:', message_raw].join(' ')
+    return message
+}
+
+logFile.on('open', function() {
+  var message = create_message('opened ' + config.syslogFile + ' for logging')
+  logger.info(message)
+  queue.items.push(message)
+})
+
+logFile.on('error', function(err) {
+  logger.info('could not create write stream:' + err)
+})
+
 
 queue.on('message', function() {
   // TODO: look into using an offset & slice for increased performance  
@@ -94,19 +120,19 @@ server_dgram
     if (msg[0] == 60 && (msg[2] == 62 || msg[3] == 62 || msg[3] == 62) ) {
       parse_data(msg)
     } else {
-      console.log('malformed message from:' + rinfo)
-      console.log(msg)
+      logger.error('malformed message from:' + rinfo)
+      logger.error(msg)
     }
   })
   .on('error', function(err) {
-    console.log('error of some udp variety:' + err)
+    logger.error('error of some udp variety:' + err)
   })
 
 
 server_sock
   .on('listening', function() {
-    console.log('server listening')
-    console.log('setting socket permissions')
+    logger.info('server listening')
+    logger.info('setting socket permissions')
     // server is listening, make the socket writable
     fs.chmodSync(config.socketPath, '0666')
   })
@@ -114,24 +140,24 @@ server_sock
     // not implemented
   })
   .on('end', function() {
-    console.log('server end')
+    logger.info('server end')
   })
   .on('error', function(err) {
     // maybe not so nice, but attempt to take over a socket
     // note: this is conditional on config.claimSocket being true,
     // so you have to deliberately be a jerk to take it over	
     if (err.errno === 'EADDRINUSE' && config.claimSocket === true) {
-      console.log('attempting to clean up old socket')
+      logger.info('attempting to clean up old socket')
       fs.unlink(config.socketPath, function(err) {
         if (err) {
-          console.log('could not unlink ' + config.socketPath)
+          logger.error('could not unlink ' + config.socketPath)
         } else {
-          console.log('unlinked old socket at ' + config.socketPath)
+          logger.info('unlinked old socket at ' + config.socketPath)
           server_sock.listen(config.socketPath)
         }
       })
     } else {
-      console.log(e)
+      logger.error(err)
     }
   })
 
@@ -143,10 +169,10 @@ process
   .on('SIGINT', function() {
     fs.unlink(config.socketPath, function(err) {
       if (err) {
-        console.log('could not unlink socket!! ' + config.socketPath)
-        process.exit(1)
+        logger.error('Could not unlink socket!! ' + config.Socketpath)
+        process.Exit(1)
       } else {
-        console.log('cleaned up socket ' + config.socketPath + ', exiting')
+        logger.info('Cleaned up socket ' + config.Socketpath + ', exiting')
         process.exit()
       }
     })
