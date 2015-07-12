@@ -23,7 +23,8 @@
     "syslog",
     "syslogd",
     "logging",
-    "rfc3164"
+    "rfc3164",
+    "rfc5424"  
   ],
   "author": "Jamon Camisso",
   "license": "WTFPL"
