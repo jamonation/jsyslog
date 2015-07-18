@@ -2,11 +2,15 @@
   "name": "jsyslog",
   "version": "0.0.3",
   "description": "node based syslog daemon",
-  "main": "jsyslog.js",
+  "main": "lib/jsyslog.js",
+  "bin": {
+    "jsyslog": "bin/jsyslog.js"
+  },
   "dependencies": {
+    "bluebird": "^2.9.34",
+    "bunyan": "^1.4.0",
     "strftime": "^0.9.2",
     "unix-dgram": "^0.2.1",
-    "bunyan": "^1.4.0",
     "winston": "^1.0.1"
   },
   "devDependencies": {},
@@ -33,9 +37,9 @@
   },
   "license": "WTFPL",
   "gitHead": "8677929aad97a3378c5132c3d84dd55bbbfdc59e",
-  "_id": "jsyslog@0.0.3",
-  "_shasum": "2f6f17dc70b0704250a153e56c4e683950db3bc5",
-  "_from": "jsyslog@",
+  "_id": "jsyslog@0.0.2",
+  "_shasum": "2f804c674dc69ab28d2e5d90b2d6130abaf19539",
+  "_from": ".",
   "_npmVersion": "2.1.12",
   "_nodeVersion": "0.10.31",
   "_npmUser": {
@@ -53,5 +57,7 @@
     }
   ],
   "directories": {},
-  "_resolved": "https://registry.npmjs.org/jsyslog/-/jsyslog-0.0.2.tgz"
+  "_resolved": "https://registry.npmjs.org/jsyslog/-/jsyslog-0.0.2.tgz",
+  "readme": "![jsyslog logo](http://jamon.ca/jsyslog.png)\n\njsyslog is a javascript based syslog daemon that aims to be a complete implementation of RFC 3164, and RFC 5424.\n\nA number of features are planned, like a plugin system for logging to endpoints such as Elasticsearch, Fluentd, Heka, Logstash or other syslog daemons.\n\n## why?\n\nThere is no RFC compliant syslog daemon in the nodejs ecosystem. Moreover, tools like rsyslog and syslog-ng are somewhat exacting in terms of their setup.\n\njsyslog intends to make it easy for anyone with a passing knowledge of javascript or json to be able setup, use and extend with a minimum amount of fuss.\n\n## getting started\n\nA few things are required to use jsyslog on Linux and OSX systems (untested on Windows and *BSD as of this writing):\n\n1. node and npm binaries\n\n2. root access (if you want to run as an rsyslog/syslogd/syslog-ng replacement)\n\n3. highly recommend pm2 process manager\n\nTo get jsyslog setup, use npm or clone this repository.\n\ncd to node_modules or wherever you cloned jsyslog\n\nEdit `config/config.js` to your liking.\n\nAs root run `pm2 start jsyslog` or `node jsyslog`\n\n## TODO:\n\n1. Make npm -g install work\n\n2. Use process fork to run standalone and as an unprivileged user\n\n3. Build plugin system for logging endpoints like elasticsearch, fluentd, heka, logstash, rsyslog etc. etc.\n",
+  "readmeFilename": "README.md"
 }
