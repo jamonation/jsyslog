@@ -1,11 +1,12 @@
 {
   "name": "jsyslog",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "node based syslog daemon",
   "main": "lib/jsyslog.js",
   "bin": {
     "jsyslog": "bin/jsyslog.js"
   },
+  "preferGlobal": true,
   "dependencies": {
     "bluebird": "^2.9.34",
     "bunyan": "^1.4.0",
