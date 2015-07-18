@@ -1,119 +1,100 @@
-var dgram = require('dgram')
-var fs = require('fs')
-var net = require('net')
+#!/usr/bin/env node
 
-const config = require('./config/config.js')
-var logger = require('./lib/logger')()
-var queue = require('./lib/queue')
-var helpers = require('./lib/helpers')
+var bluebird = require('bluebird')
+var fs = bluebird.promisifyAll(require('fs'))
+var spawn = require('child_process').spawn
+
+// only want start/stop/restart argument
+var arg = process.argv.slice(2)[0]
+
+var config = require('./config/config')
 
 
-var server_sock = net.createServer(read_sock)
-  server_sock.listen(config.socketPath) // do the needful, bind to the unix socket
-
-var server_dgram = dgram.createSocket('udp4')
-  server_dgram.bind(config.port, config.iface) // do the needful, bind the udp port
-
-var logFile = fs.createWriteStream(config.syslogFile, {flags: 'a', mode: '0640', encoding: 'utf8'})
-
-logFile
-  .on('open', function() {
-    var message = helpers.create_message('opened ' + config.syslogFile + ' for logging')
-    logger.debug(message)
-    queue.items.push(message)
+// start the child jsyslog process and detach parent
+function spawn_child() {
+  var child = spawn('node', ['./lib/jsyslog'], {
+    detached: true,
+    stdio: [ 'ignore', 'ignore', 'ignore' ]
   })
-  .on('error', function(err) {
-    logger.error('could not create write stream:' + err)
-  })
-
-
-queue.on('message', function() {
-  // TODO: look into using an offset & slice for increased performance  
-  var message = queue.items[0] + '\n'
-  logFile.write(message, 'ascii', queue.items.shift())
-})
-
-/*
-  listen for various emitted Events
-*/
-function read_sock(sock) {
-  sock
-    .on('data', function(data) {
-      queue.items.push(helpers.parse_data(data))
+  fs.writeFileAsync(config.pid, child.pid + '\n')
+    .then(function() {
+      console.log('Spawned jsyslog process with pid %d', child.pid)
+      child.unref() // forking is done, unfref lets this parent detach
+    })  
+    .catch(function(err) {
+      console.log('Could not write process pid, attempting to shutdown jsyslog')
+      throw new Error(err)  
+      shutdown(child.pid).then(process.exit(1)) // something went splat
     })
-    .on('close', function() {
-      // not implemented    
-    })
-    .on('finish', function() {
-      // not implemented    
-    })
-    .on('end', function() {
-      // not implemented    
-    })    
 }
 
 
-server_dgram
-  .on('message', function(msg, rinfo) {
-    // check that a message on udp port starts with <nnn> before parsing
-    // though, rfc3164 says a udp message must not be discarded regardless
-    if (msg[0] == 60 && (msg[2] == 62 || msg[3] == 62 || msg[3] == 62) ) {
-      queue.items.push(helpers.parse_data(msg))
+// shutdown a running jsyslog child if a pid exists
+function shutdown(pid) {
+  var d = bluebird.defer()
+  process.kill(pid, 'SIGTERM', function(err) {
+    if (err) {
+      console.log('Error sending SIGTERM to pid: ' + pid)
+      d.reject(err)
     } else {
-      logger.error('malformed message from:', rinfo)
-      logger.error(msg.toString())
+      d.resolve()
     }
   })
-  .on('error', function(err) {
-    logger.error('error of some udp variety:' + err)
-  })
+  console.log('Sent shutdown signal to process %d', pid)
+  return d.promise
+}
 
 
-server_sock
-  .on('listening', function() {
-    logger.info(helpers.create_message('server listening'))
-    logger.info(helpers.create_message('setting socket permissions'))
-    // server is listening, make the socket writable
-    fs.chmodSync(config.socketPath, '0666')
-  })
-  .on('connection', function(c) {
-    // not implemented
-  })
-  .on('end', function() {
-    logger.info(helpers.create_message('server end'))
-  })
-  .on('error', function(err) {
-    // maybe not so nice, but attempt to take over a socket
-    // note: this is conditional on config.claimSocket being true,
-    // so you have to deliberately be a jerk to take it over	
-    if (err.errno === 'EADDRINUSE' && config.claimSocket === true) {
-      logger.info(helpers.create_message('attempting to clean up old socket'))
-      fs.unlink(config.socketPath, function(err) {
-        if (err) {
-          logger.error(helpers.create_message('could not unlink ' + config.socketPath))
-        } else {
-          logger.info(helpers.create_message('unlinked old socket at ' + config.socketPath))
-          server_sock.listen(config.socketPath)
-        }
-      })
-    } else {
-      logger.error(helpers.create_message(err))
-    }
-  })
-
-
-/*
-  clean up socket on exit 
-*/
-process
-  .on('SIGINT', function() {
-    fs.unlink(config.socketPath, function(err) {
-      if (err) {
-        logger.error(helpers.create_message('Could not unlink socket!! ' + config.Socketpath))
-        process.Exit(1)
-      } else {
-        logger.info(helpers.create_message('Cleaned up socket ' + config.Socketpath + ', exiting'))
+// parse arg string for start/restart/stop and take appropriate action
+if (arg === 'start') {
+  fs.readFileAsync(config.pid) // check for a pid
+    // pid exists, so just notify the user and then take no action
+    .then(function(pid) {        
+      console.log('jsyslog process with pid %d detected, exiting', pid)
+      process.exit()
+    })
+    // pid doesn't exist, so start up a child
+    .catch(Error, function(err) {
+      if (err.code === 'ENOENT') {
+        spawn_child()
+      }
+    })
+    // bustage
+    .catch(function(err) {
+       console.log('Something went wrong starting jsyslog, exiting')
+       throw new Error(err)
+       process.exit(1)
+    })
+} else if (arg === 'restart') {
+  fs.readFileAsync(config.pid) // check for a pid
+    .then(shutdown) // be lazy, shutdown the server
+    .then(spawn_child) // then start up a new one
+    .catch(function(err) {
+      console.log('Something went wrong restarting')
+      throw new Error(err)  
+      process.exit(1)
+    })
+} else if (arg === 'stop') {
+  fs.readFileAsync(config.pid) // check for a pid
+    .then(shutdown) // shutdown the server
+    .catch(Error, function(err, data) {
+      if (err.errno === 'ESRCH') {
+        // called stop on a pid for a process that doesn't exist. Bork.
+        console.log('No jsyslog process detected. Please check %s. Exiting.',
+                    fs.readFileSync(config.pid))
+        process.exit()
+      } else if (err.code === 'ENOENT') {
+        console.log('No jsyslog process detected. Exiting.')
         process.exit()
       }
     })
-  })
+    .catch(function(err) {
+      console.log('Something went wrong shutting down.')
+      throw new Error(err)  
+      process.exit(1)
+    })    
+} else {
+  console.error('Error. No argument given.\n' +
+                'Please pass \'start\', \'stop\' or \'restart\'' +
+                'as an argument to jsyslog')
+}
