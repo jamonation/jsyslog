@@ -38,9 +38,9 @@
   },
   "license": "WTFPL",
   "gitHead": "8677929aad97a3378c5132c3d84dd55bbbfdc59e",
-  "_id": "jsyslog@0.0.2",
-  "_shasum": "2f804c674dc69ab28d2e5d90b2d6130abaf19539",
-  "_from": ".",
+  "_id": "jsyslog@0.0.4",
+  "_shasum": "a1fcf438ecb11738143d6ebc17a57c5a2b6349b0",
+  "_from": "jsyslog@",
   "_npmVersion": "2.1.12",
   "_nodeVersion": "0.10.31",
   "_npmUser": {
