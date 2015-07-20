@@ -14,7 +14,9 @@
     "unix-dgram": "^0.2.1",
     "winston": "^1.0.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "tape": "^4.0.1"
+  },
   "optionalDependencies": {
     "bunyan": "^1.4.0",
     "winston": "^1.0.1"
