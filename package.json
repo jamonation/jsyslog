@@ -10,17 +10,20 @@
   "dependencies": {
     "bluebird": "^2.9.34",
     "bunyan": "^1.4.0",
+    "istanbul": "^0.3.21",
     "strftime": "^0.9.2",
     "unix-dgram": "^0.2.1",
     "winston": "^1.0.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "tape": "^4.0.1"
+  },
   "optionalDependencies": {
     "bunyan": "^1.4.0",
     "winston": "^1.0.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/istanbul cover --include-all-sources ./node_modules/.bin/tape tests/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -38,9 +41,9 @@
   },
   "license": "WTFPL",
   "gitHead": "8677929aad97a3378c5132c3d84dd55bbbfdc59e",
-  "_id": "jsyslog@0.0.2",
-  "_shasum": "2f804c674dc69ab28d2e5d90b2d6130abaf19539",
-  "_from": ".",
+  "_id": "jsyslog@0.0.4",
+  "_shasum": "a1fcf438ecb11738143d6ebc17a57c5a2b6349b0",
+  "_from": "jsyslog@",
   "_npmVersion": "2.1.12",
   "_nodeVersion": "0.10.31",
   "_npmUser": {
