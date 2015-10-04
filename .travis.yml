@@ -9,4 +9,4 @@ script:
 
 # taken from istanbul .travis.yml: https://github.com/gotwarlost/istanbul/blob/master/.travis.yml
 after_script:
-  - cat ./build/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+  - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
