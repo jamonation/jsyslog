@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
+    "istanbul": "^0.3.21",
     "tape": "^4.0.1"
   },
   "optionalDependencies": {
