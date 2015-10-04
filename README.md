@@ -1,5 +1,9 @@
 ![jsyslog logo](http://jamon.ca/jsyslog.png)
 
+[![Build Status](https://travis-ci.org/jamonation/jsyslog.svg)](https://travis-ci.org/jamonation/jsyslog)
+
+[![Coverage Status](https://coveralls.io/repos/jamonation/jsyslog/badge.svg?branch=master&service=github)](https://coveralls.io/github/jamonation/jsyslog?branch=master)
+
 jsyslog is a javascript based syslog daemon that aims to be a complete implementation of RFC 3164, and RFC 5424.
 
 A number of features are planned, like a plugin system for logging to endpoints such as Elasticsearch, Fluentd, Heka, Logstash or other syslog daemons.
