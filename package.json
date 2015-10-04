@@ -16,6 +16,7 @@
     "winston": "^1.0.1"
   },
   "devDependencies": {
+    "coveralls": "^2.11.4",
     "tape": "^4.0.1"
   },
   "optionalDependencies": {
