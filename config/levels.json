@@ -1,7 +1,7 @@
 {
 
     "facilities": {
-	"0": {"name": "kern", "description": "kernel", "log": "/var/log/kern.log},
+	"0": {"name": "kern", "description": "kernel", "log": "/var/log/kern.log"},
 	"1": {"name": "user", "description": "user-level messages", "log": "/var/log/syslog"},
 	"2": {"name": "mail", "description": "mail system", "log": "/var/log/mail.log"},
 	"3": {"name": "daemon", "description": "system daemons", "log": "/var/log/syslog"},
