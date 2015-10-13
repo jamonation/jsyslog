@@ -31,8 +31,8 @@ test('jsyslog bin',
          jsyslog.daemon_action('status')
 	 jsyslog.spawn_child()
 	 t.equal(jsyslog.log_pid(process.pid), process.pid, 'log_pid returns correct process.pid')
-	 var sigusr = jsyslog.signal_pid(process.pid, 'SIGUSR1')
-	 t.equal(typeof sigusr, 'object', 'SIGUSR1 sent to signal_pid returns a promise')
+	 var sigusr = jsyslog.signal_pid(process.pid, 'SIGCHLD')
+	 t.equal(typeof sigusr, 'object', 'SIGCHLD sent to signal_pid returns a promise')
 
 	 // this test is a little funky, needs to catch the promise rejection, which is a thrown error
 	 jsyslog.signal_pid(process.pid, 'SIGFOO')
@@ -52,6 +52,11 @@ test('jsyslog bin',
          err_esrch.code = 'ESRCH'
          err_esrch.errno = 'ESRCH'
 	 t.throws(jsyslog.error_pid(err_esrch), 'error_pid sent ESRCH returns error in place of process.exit')
+
+	 var stop = jsyslog.daemon_action('stop')	 
+	 t.equal(typeof stop, 'object', 'stop arg returns a promise')
+	 var status = jsyslog.daemon_action('stop')	 
+	 t.equal(typeof status, 'object', 'status arg returns a promise')	 
 
          t.end()
      }

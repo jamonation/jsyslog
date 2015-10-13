@@ -106,10 +106,10 @@ var error_pid = function(err) {
   }
 }
 
-var daemon_action = function(action) {
+var daemon_action = function(arg) {
     // parse arg string for start/restart/stop and take appropriate action
     if (arg === 'start') {
-	fs.readFileAsync(config.pid) // check for a pid
+	return fs.readFileAsync(config.pid) // check for a pid
 	    // pid exists, so just notify the user and then take no action
 	    .then(log_pid)
 	    // pid doesn't exist, so start up a child
@@ -125,7 +125,7 @@ var daemon_action = function(action) {
 		process.exit(1)
 	    })
     } else if (arg === 'restart') {
-	fs.readFileAsync(config.pid) // check for a pid
+	return fs.readFileAsync(config.pid) // check for a pid
 	    .then(function(pid) {
 		signal_pid(pid, 'SIGTERM') // be lazy, shutdown the server
 	    })
@@ -137,7 +137,7 @@ var daemon_action = function(action) {
 		process.exit(1)
 	    })
     } else if (arg === 'stop') {
-	fs.readFileAsync(config.pid) // check for a pid
+	return fs.readFileAsync(config.pid) // check for a pid
 	    .then(function(pid) {
 		signal_pid(pid, 'SIGTERM') // shutdown the server
 		    .catch(Error, error_pid) // gracefully handle ENOENT/ESRCH errors
@@ -150,7 +150,7 @@ var daemon_action = function(action) {
 		process.exit(1)
 	    })
     } else if (arg === 'status') {
-	fs.readFileAsync(config.pid) // check for a pid
+	return fs.readFileAsync(config.pid) // check for a pid
 	    .then(log_pid)
 	    .then(function(pid) {
 		signal_pid(pid, 'SIGCHLD') // check the server exists
